@@ -1,69 +1,32 @@
-import Image from "next/image";
+"use client";
+
+import { motion, useMotionValue, useTransform } from "framer-motion";
+import { ChevronDown, Heart, RotateCcw, X } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+
+const movies = [
+  { title: "Arrival", year: "2016", genres: "Sci-Fi · Drama", rating: "7.9", tagline: "Why are they here?", image: "https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?auto=format&fit=crop&w=1000&q=85" },
+  { title: "Past Lives", year: "2023", genres: "Drama · Romance", rating: "7.8", tagline: "In the end, what is a lifetime?", image: "https://images.unsplash.com/photo-1519608487953-e999c86e7451?auto=format&fit=crop&w=1000&q=85" },
+  { title: "The Night House", year: "2020", genres: "Horror · Mystery", rating: "6.4", tagline: "Some secrets stay buried.", image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1000&q=85" },
+];
+type Action = "liked" | "disliked" | "unseen";
+const messages: Record<Action, string> = { liked: "Added to your taste.", disliked: "Got it. Not your thing.", unseen: "Marked as unwatched." };
 
 export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+  const [index, setIndex] = useState(0); const [lastAction, setLastAction] = useState<Action | null>(null); const [details, setDetails] = useState(false);
+  const x = useMotionValue(0); const y = useMotionValue(0); const rotate = useTransform(x, [-180, 0, 180], [-12, 0, 12]); const like = useTransform(x, [0, 110], [0, 1]); const nope = useTransform(x, [-110, 0], [1, 0]); const unseen = useTransform(y, [0, 115], [0, 1]);
+  const movie = movies[index];
+  const act = useCallback((action: Action) => { if (!movie) return; setLastAction(action); setDetails(false); setIndex((current) => current + 1); x.set(0); y.set(0); }, [movie, x, y]);
+  useEffect(() => { const onKey = (event: KeyboardEvent) => { if (event.key === "ArrowRight") act("liked"); if (event.key === "ArrowLeft") act("disliked"); if (event.key === "ArrowDown") act("unseen"); }; addEventListener("keydown", onKey); return () => removeEventListener("keydown", onKey); }, [act]);
+  return <main className="min-h-screen overflow-hidden bg-[#0b0b0d] px-5 py-7 text-white sm:px-8">
+    <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_50%_-10%,rgba(158,205,101,0.22),transparent_32%),radial-gradient(circle_at_2%_70%,rgba(36,85,120,0.18),transparent_28%)]" />
+    <header className="mx-auto flex max-w-6xl items-center justify-between"><span className="text-lg font-black tracking-[-0.07em]">SWIPE<span className="text-lime-300">FLIX</span></span><span className="rounded-full border border-white/10 bg-white/[0.03] px-3 py-1.5 text-xs font-medium text-white/60">Discovering your taste</span></header>
+    <section className="mx-auto grid max-w-6xl items-center gap-12 py-12 lg:grid-cols-[1fr_auto_1fr] lg:py-16">
+      <div className="order-2 max-w-sm lg:order-1"><p className="text-xs font-semibold tracking-[0.24em] text-lime-300">FIRST, THE FUN PART</p><h1 className="mt-4 text-4xl font-semibold leading-[1.02] tracking-tight sm:text-5xl">Let&apos;s figure out your taste.</h1><p className="mt-5 text-base leading-7 text-white/60">Don&apos;t tell us what you like. Show us. Every reaction builds a profile that gets more personal with every movie.</p><div className="mt-9 space-y-3 text-sm text-white/60"><p>→ Like what pulls you in</p><p>× Pass on what doesn&apos;t</p><p>↓ Unknown is never a negative</p></div></div>
+      <section className="order-1 mx-auto w-full max-w-md lg:order-2">{movie ? <><div className="mb-4 flex justify-between text-xs text-white/45"><span>{String(index + 1).padStart(2, "0")} / {String(movies.length).padStart(2, "0")}</span><span>Drag or use arrow keys</span></div><div className="relative h-[570px] sm:h-[620px]"><div className="absolute inset-3 rounded-[2rem] bg-white/[0.025]" /><motion.article drag dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }} dragElastic={0.72} onDragEnd={(_, info) => { if (info.offset.x > 115) act("liked"); else if (info.offset.x < -115) act("disliked"); else if (info.offset.y > 125) act("unseen"); }} style={{ x, y, rotate }} className="absolute inset-0 cursor-grab overflow-hidden rounded-[2rem] border border-white/10 bg-zinc-900 shadow-2xl shadow-black/50 active:cursor-grabbing"><div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${movie.image})` }} /><div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/25 to-black/20" /><motion.b style={{ opacity: like }} className="absolute right-7 top-8 rotate-12 rounded-xl border-4 border-lime-300 px-3 py-1 text-2xl tracking-widest text-lime-300">LIKE</motion.b><motion.b style={{ opacity: nope }} className="absolute left-7 top-8 -rotate-12 rounded-xl border-4 border-rose-400 px-3 py-1 text-2xl tracking-widest text-rose-400">NOPE</motion.b><motion.b style={{ opacity: unseen }} className="absolute left-1/2 top-10 -translate-x-1/2 rounded-xl border-4 border-sky-300 px-3 py-1 text-lg tracking-widest text-sky-300">UNSEEN</motion.b><div className="absolute inset-x-0 bottom-0 p-7 sm:p-8"><p className="text-xs font-semibold uppercase tracking-[0.22em] text-white/60">{movie.tagline}</p><h2 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">{movie.title}</h2><p className="mt-3 text-sm text-white/75">{movie.year} <span className="text-white/30">•</span> {movie.genres} <span className="text-white/30">•</span> <span className="text-amber-300">★ {movie.rating}</span></p>{details && <p className="mt-5 max-w-sm text-sm leading-6 text-white/70">A slow-burn story selected to help uncover what really holds your attention.</p>}<button onClick={() => setDetails(!details)} className="mt-5 inline-flex items-center gap-1 text-sm font-medium underline decoration-white/30 underline-offset-4">{details ? "Less" : "More"}<ChevronDown size={16} className={details ? "rotate-180" : ""} /></button></div></motion.article></div><div className="mt-7 flex items-center justify-center gap-4"><Action label="Nope" tone="rose" onClick={() => act("disliked")}><X size={24} /></Action><button onClick={() => { if (index) { setIndex(index - 1); setLastAction(null); } }} disabled={!index} aria-label="Undo" className="grid size-11 place-items-center rounded-full border border-white/10 text-white/70 disabled:opacity-30"><RotateCcw size={17} /></button><Action label="Unseen" tone="sky" onClick={() => act("unseen")}><ChevronDown size={24} /></Action><Action label="Like" tone="lime" onClick={() => act("liked")}><Heart size={22} fill="currentColor" /></Action></div>{lastAction && <p className="mt-5 text-center text-sm text-white/60">{messages[lastAction]}</p>}</> : <div className="flex min-h-[620px] flex-col items-center justify-center rounded-[2rem] border border-white/10 bg-white/[0.03] p-10 text-center"><p className="text-xs font-semibold tracking-[0.24em] text-lime-300">TASTE SIGNAL CAPTURED</p><h2 className="mt-4 text-3xl font-semibold">We&apos;re getting somewhere.</h2><p className="mt-3 text-sm text-white/60">Your first recommendations are ready to take shape.</p><button onClick={() => setIndex(0)} className="mt-7 rounded-full bg-white px-5 py-3 text-sm font-semibold text-black">Start a new round</button></div>}</section>
+      <aside className="order-3 max-w-sm rounded-3xl border border-white/10 bg-white/[0.035] p-6 lg:justify-self-end"><p className="text-xs font-semibold tracking-[0.2em] text-white/45">YOUR TASTE, SO FAR</p><div className="mt-6 space-y-5">{[["Mood", "Still learning"], ["Pacing", "Still learning"], ["Genres", "Waiting for signals"]].map(([label, value]) => <div key={label}><div className="flex justify-between text-sm"><span className="text-white/70">{label}</span><span className="text-white/35">{value}</span></div><div className="mt-2 h-1.5 rounded-full bg-white/10"><div className="h-full w-[14%] rounded-full bg-lime-300/60" /></div></div>)}</div><p className="mt-7 border-t border-white/10 pt-5 text-sm leading-6 text-white/50">After ten reactions, SwipeFlix will reveal the first signals in your Movie DNA.</p></aside>
+    </section>
+  </main>;
 }
+
+function Action({ label, tone, onClick, children }: { label: string; tone: "rose" | "sky" | "lime"; onClick: () => void; children: React.ReactNode }) { const colour = tone === "rose" ? "border-rose-400/35 text-rose-300 hover:bg-rose-400/15" : tone === "sky" ? "border-sky-300/35 text-sky-200 hover:bg-sky-300/15" : "border-lime-300/35 text-lime-200 hover:bg-lime-300/15"; return <button onClick={onClick} className="group flex flex-col items-center gap-2 text-xs font-medium"><span className={`grid size-14 place-items-center rounded-full border transition ${colour}`}>{children}</span><span className="text-white/65">{label}</span></button>; }
